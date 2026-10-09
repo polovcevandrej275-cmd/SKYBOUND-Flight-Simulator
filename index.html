@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071426">
+  <meta name="description" content="Интерактивный браузерный симулятор полётов: выбирай аэропорты, строй маршрут и наблюдай за самолётом на карте мира.">
+  <title>SKYBOUND — симулятор полётов</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="SKYBOUND главная">
+        <span class="brand-symbol">✦</span><span>SKY<span class="brand-accent">BOUND</span></span>
+      </a>
+      <div class="top-status"><span class="live-dot"></span><span>FLIGHT SIMULATOR</span><span class="status-divider"></span><span class="status-muted">WORLD MAP</span></div>
+      <div class="top-right"><span class="utc-clock" id="clock">UTC --:--:--</span><span class="user-badge">PILOT 01</span></div>
+    </header>
+
+    <main class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-heading"><div><span class="eyebrow">FLIGHT DECK / 01</span><h1>Планирование<br><span>полёта</span></h1></div><div class="heading-icon">✈</div></div>
+        <p class="intro">Выбери маршрут и отправляйся исследовать мир. Это учебная симуляция, а не управление реальным самолётом.</p>
+
+        <section class="control-section">
+          <div class="section-label"><span class="section-index">01</span><span>МАРШРУТ</span><span class="section-line"></span></div>
+          <label for="origin">Аэропорт вылета</label>
+          <div class="select-wrap"><span class="airport-pin">◎</span><select id="origin"></select></div>
+          <button class="swap-button" id="swapRoute" aria-label="Поменять аэропорты местами">⇅</button>
+          <label for="destination">Аэропорт назначения</label>
+          <div class="select-wrap"><span class="airport-pin destination-pin">◎</span><select id="destination"></select></div>
+          <div class="route-summary"><div><span>ДИСТАНЦИЯ</span><strong id="distance">— <small>NM</small></strong></div><div><span>ПРИМЕРНОЕ ВРЕМЯ</span><strong id="eta">—</strong></div></div>
+          <button class="primary-button" id="planRoute"><span>✧</span> Построить маршрут <span class="button-arrow">↗</span></button>
+        </section>
+
+        <section class="control-section aircraft-section">
+          <div class="section-label"><span class="section-index">02</span><span>САМОЛЁТ</span><span class="section-line"></span></div>
+          <div class="aircraft-card"><div class="aircraft-visual">✈</div><div class="aircraft-info"><strong>Skyliner S1</strong><span>Однодвигательный · учебный</span><div class="aircraft-tags"><span>CRUISE</span><span>SIM CLASS</span></div></div><span class="aircraft-chevron">⌄</span></div>
+          <div class="range-row"><label for="speed">Скорость</label><strong><span id="speedValue">480</span> <small>км/ч</small></strong></div>
+          <input id="speed" type="range" min="180" max="850" step="10" value="480">
+          <div class="range-scale"><span>180 км/ч</span><span>850 км/ч</span></div>
+        </section>
+
+        <section class="control-section flight-section">
+          <div class="section-label"><span class="section-index">03</span><span>УПРАВЛЕНИЕ</span><span class="section-line"></span></div>
+          <div class="flight-state"><span class="state-icon" id="stateIcon">Ⅱ</span><div><strong id="flightState">Готов к вылету</strong><small id="flightSubstate">Маршрут ещё не запущен</small></div><span class="state-pill" id="statePill">STANDBY</span></div>
+          <div class="flight-buttons"><button class="start-button" id="startFlight" disabled>▶ Запустить полёт</button><button class="icon-button" id="resetFlight" title="Сбросить полёт" aria-label="Сбросить полёт">↺</button></div>
+          <div class="progress-label"><span>ПРОГРЕСС</span><strong id="progressText">0%</strong></div>
+          <div class="progress-track"><div id="progressBar"></div></div>
+        </section>
+
+        <div class="sidebar-footer"><span class="footer-spark">✦</span><span>Создано для любопытных пилотов.</span><span class="version">v1.0</span></div>
+      </aside>
+
+      <section class="map-panel">
+        <div id="map" role="application" aria-label="Интерактивная карта мира"></div>
+        <div class="map-topline"><div class="map-chip"><span class="live-dot"></span> LIVE SIMULATION</div><div class="map-tools"><button id="worldView" title="Показать весь мир">⊕ <span>Весь мир</span></button><button id="toggleLabels" title="Переключить подписи аэропортов">⌖ <span>Аэропорты</span></button></div></div>
+        <div class="map-coordinates"><span class="coord-icon">⌖</span><span id="coords">КАРТА МИРА · WGS84</span></div>
+        <div class="map-legend"><div><span class="legend-dot origin-dot"></span> Вылет</div><div><span class="legend-dot dest-dot"></span> Назначение</div><div><span class="legend-line"></span> Маршрут</div></div>
+        <div class="map-bottom-card"><div class="mini-plane">✈</div><div class="bottom-flight-info"><span id="bottomFlightLabel">FLIGHT PLAN / READY</span><strong id="bottomFlightRoute">Выбери два аэропорта</strong></div><div class="bottom-progress"><span>ПРОГРЕСС</span><strong id="bottomProgress">0%</strong></div></div>
+        <div class="map-disclaimer">Карта © OpenStreetMap contributors · Демонстрационная симуляция</div>
+      </section>
+    </main>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="script.js"></script>
+</body>
+</html>
